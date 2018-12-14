@@ -1,0 +1,7 @@
+github "Instagram/IGListKit" "3.4.0"
+github "ReactiveX/RxSwift" "4.4.0"
+github "nesium/Bindings" "1e98be7e109dad4fe3b489093682bdc96ca5cc31"
+github "nesium/Flex" "7855a96469bc2285f0459b40e57e3d477526d439"
+github "nesium/NSMFoundation" "c674162ffb91b365f61a5430317f1b45206b30c5"
+github "nesium/NSMUIKit" "402cec5803b151165fc6012715145752893c5744"
+github "nesium/SwipeCellKit" "1.9.0"

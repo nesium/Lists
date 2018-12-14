@@ -1,0 +1,6 @@
+github "Instagram/IGListKit.git" ~> 3.4
+github "ReactiveX/RxSwift" ~> 4.4
+github "nesium/SwipeCellKit" ~> 1.9
+github "nesium/Bindings" "master"
+github "nesium/NSMFoundation" "master"
+github "nesium/NSMUIKit" "master"

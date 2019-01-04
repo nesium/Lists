@@ -194,10 +194,11 @@ public struct SectionData<ItemValue> {
 
   func updateCell(
     at index: Int,
+    withDataFrom dataIndex: Int,
     context: ListCollectionContext,
     sectionController: ListSectionController
   ) {
-    let value = self.items[index]
+    let value = self.items[dataIndex]
 
     self.cellProvider.set(
       mode: .update,

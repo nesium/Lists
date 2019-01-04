@@ -69,7 +69,8 @@ internal class SectionDataListSectionController:
 
           if idxAfterUpdate != NSNotFound {
             data.updateCell(
-              at: idxAfterUpdate,
+              at: idx,
+              withDataFrom: idxAfterUpdate,
               context: collectionContext,
               sectionController: self
             )

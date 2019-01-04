@@ -25,6 +25,7 @@ internal protocol SectionDataType {
 
   func updateCell(
     at index: Int,
+    withDataFrom dataIndex: Int,
     context: ListCollectionContext,
     sectionController: ListSectionController
   )

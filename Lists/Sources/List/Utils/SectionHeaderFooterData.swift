@@ -42,7 +42,7 @@ public struct SectionHeaderFooterData: Equatable {
       }
 
       containerView.applyValue(value, style: viewStyle)
-      configurationHandler?((containerView.contentView as! View), idx)
+      configurationHandler?((containerView.contentView as! View), ctrl.section)
       return containerView
     }
     self.uniqueIdentifier = uniqueIdentifier

@@ -48,6 +48,8 @@ internal protocol SectionHeaderFooterDataType {
     context: ListCollectionContext,
     sectionController: ListSectionController
   ) -> UICollectionReusableView
+
+  func configure(view: UICollectionReusableView, in section: Int)
 }
 
 

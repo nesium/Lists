@@ -133,15 +133,40 @@ open class TypedListViewController<ItemValue, OutputValue>: ListViewController
     }
   }
 
-  public func sectionData(at idx: Int) -> SectionData<ItemValue> {
+  public func sectionData(at idx: Int) -> SectionData<ItemValue>? {
     if !self.isViewLoaded {
       _ = self.view
     }
-    return (self.listAdapter.object(atSection: idx) as! DiffableSectionDataBox<SectionData<ItemValue>>).value
+    return (self.listAdapter.object(atSection: idx)
+      as? DiffableSectionDataBox<SectionData<ItemValue>>)?.value
   }
 
   public func item(at indexPath: IndexPath) -> ItemValue {
-    return self.sectionData(at: indexPath.section).items[indexPath.item]
+    return self.sectionData(at: indexPath.section)!.items[indexPath.item]
+  }
+
+  public func updateVisibleCells() {
+    for ctrl in self.listAdapter.visibleSectionControllers() {
+      let section = ctrl.section
+
+      guard
+        let sectionData = self.sectionData(at: section),
+        let ctx = ctrl.collectionContext
+      else {
+        continue
+      }
+
+      let visibleIndexPaths = ctx.visibleIndexPaths(for: ctrl)
+
+      for indexPath in visibleIndexPaths {
+        sectionData.updateCell(
+          at: indexPath.item,
+          withDataFrom: indexPath.item,
+          context: ctx,
+          sectionController: ctrl
+        )
+      }
+    }
   }
 
   // MARK: - InputViewController Methods -
@@ -179,6 +204,30 @@ open class TypedListViewController<ItemValue, OutputValue>: ListViewController
     self.isUpdatingSelection = true
     self.selectionStrategy.listDidDeselectItem(self.item(at: indexPath), at: indexPath)
     self.isUpdatingSelection = false
+  }
+
+  open override func numberOfSectionsDidChange() {
+    for ctrl in self.listAdapter.visibleSectionControllers() {
+      let section = ctrl.section
+
+      guard let sectionData = self.sectionData(at: section) else {
+        continue
+      }
+
+      if let headerView = self.supplementaryView(
+        forElementKind: UICollectionView.elementKindSectionHeader,
+        at: IndexPath(item: 0, section: section)
+      ) {
+        sectionData.headerData?.configure(view: headerView, in: section)
+      }
+
+      if let footerView = self.supplementaryView(
+        forElementKind: UICollectionView.elementKindSectionFooter,
+        at: IndexPath(item: 0, section: 0)
+      ) {
+        sectionData.footer?.configure(view: footerView, in: section)
+      }
+    }
   }
 
   // MARK: - Private Methods -

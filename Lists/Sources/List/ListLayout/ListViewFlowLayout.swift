@@ -157,6 +157,8 @@ final class ListViewFlowLayout: UICollectionViewFlowLayout {
         sectionFrame.size.height = collectionView.bounds.height
       case .vertical:
         sectionFrame.size.width = collectionView.bounds.width
+      @unknown default:
+        sectionFrame.size.width = collectionView.bounds.width
     }
 
     let attributes = ListViewLayoutAttributes(

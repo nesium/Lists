@@ -39,8 +39,22 @@ public protocol ListViewControllerUpdateDelegate: AnyObject {
 public protocol ListViewControllerSwipeActionsDelegate: AnyObject {
   func listViewController(
     _ listView: ListViewController,
+    canHaveTrailingSwipeActionsInSection section: Int
+  ) -> Bool
+
+  func listViewController(
+    _ listView: ListViewController,
     trailingSwipeActionsConfigurationAt indexPath: IndexPath
   ) -> UISwipeActionsConfiguration?
+}
+
+public extension ListViewControllerSwipeActionsDelegate {
+  func listViewController(
+    _ listView: ListViewController,
+    canHaveTrailingSwipeActionsInSection section: Int
+  ) -> Bool {
+    return true
+  }
 }
 
 public extension ListViewControllerScrollDelegate {
@@ -247,6 +261,18 @@ open class ListViewController:
     return self.collectionView.indexPathForItem(at: point)
   }
 
+  public var numberOfSections: Int {
+    return self.listAdapter.objects().count
+  }
+
+  // MARK: - Internal Methods -
+
+  internal func supplementaryView(
+    forElementKind elementKind: String,
+    at indexPath: IndexPath
+  ) -> UICollectionReusableView? {
+    return self.collectionView.supplementaryView(forElementKind: elementKind, at: indexPath)
+  }
 
   // MARK: - Hooks -
 
@@ -258,6 +284,7 @@ open class ListViewController:
   open func didSelectItem(at indexPath: IndexPath) {}
   open func shouldDeselectItem(at indexPath: IndexPath) -> Bool { return false }
   open func didDeselectItem(at indexPath: IndexPath) {}
+  open func numberOfSectionsDidChange() {}
 
   // MARK: - UIViewController Methods -
 
@@ -348,7 +375,14 @@ open class ListViewController:
   ) {
     // It is important not to set us as the delegate of the SwipeTableViewCell if we have more
     // than one column, since this affects the point(inside:event:) outcome in the SwipeTableViewCell.
-    if self.swipeActionsDelegate != nil, let cell = cell as? SwipeTableViewCell {
+    if
+      let swipeActionDelegate = self.swipeActionsDelegate,
+      swipeActionDelegate.listViewController(
+        self,
+        canHaveTrailingSwipeActionsInSection: indexPath.section
+      ),
+      let cell = cell as? SwipeTableViewCell
+    {
       cell.delegate = self
     }
     if let cell = cell as? SelectableCollectionViewCell {
@@ -459,6 +493,8 @@ open class ListViewController:
           style = .default
         case .destructive:
           style = .destructive
+        @unknown default:
+          style = .default
       }
 
       let swipeAction = SwipeAction(
@@ -487,6 +523,8 @@ open class ListViewController:
         case .some(.destructive):
           options.expansionStyle = .destructiveAfterFill
         case .none:
+          break
+        @unknown default:
           break
       }
     }
@@ -532,6 +570,7 @@ open class ListViewController:
     self.sectionDataSubscription = self.data.sectionData
       .observeOn(MainScheduler.instance)
       .subscribe(onNext: { [unowned self] sectionData in
+        let oldNumberOfSections = self.sectionData.count
         self.sectionData = sectionData
 
         let animated = !self.flags.isFirstUpdate
@@ -557,6 +596,10 @@ open class ListViewController:
           self.flags.isUpdating = false
           self.flags.isUpdatingAnimated = false
           self.flags.listState = nil
+
+          if oldNumberOfSections != sectionData.count {
+            self.numberOfSectionsDidChange()
+          }
 
           self.updateSubject.on(.next(listState))
           self.updateDelegate?.listViewControllerDidFinishUpdates(

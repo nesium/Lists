@@ -17,6 +17,7 @@ public struct SectionHeaderFooterData: Equatable {
   ) -> UICollectionReusableView
 
   private let uniqueIdentifier: String
+  private let configurationHandler: ((UICollectionReusableView, Int) -> ())?
 
   public init<Value, Style: HeaderFooterViewStyle, View: AbstractHeaderFooterView<Value, Style>>(
     value: Value,
@@ -45,6 +46,18 @@ public struct SectionHeaderFooterData: Equatable {
       configurationHandler?((containerView.contentView as! View), ctrl.section)
       return containerView
     }
+
+    self.configurationHandler = configurationHandler.map { handler in
+      return { reusableView, sectionIdx in
+        guard let containerView = reusableView as?
+          CollectionHeaderFooterContainerView<Value, Style>
+        else {
+          return
+        }
+        handler(containerView.contentView as! View, sectionIdx)
+      }
+    }
+
     self.uniqueIdentifier = uniqueIdentifier
   }
 
@@ -63,6 +76,16 @@ public struct SectionHeaderFooterData: Equatable {
     sectionController: ListSectionController
   ) -> UICollectionReusableView {
     return self.reusableView(elementKind, index, context, sectionController)
+  }
+
+  /// This method is called by the `TypedListViewController` when the number of sections has
+  /// changed, so that the visible headers and footers can be updated.
+  ///
+  /// - Parameters:
+  ///   - view: The header or footer to be updated.
+  ///   - section: The section in which the header or footer is displayed.
+  internal func configure(view: UICollectionReusableView, in section: Int) {
+    self.configurationHandler?(view, section)
   }
 }
 

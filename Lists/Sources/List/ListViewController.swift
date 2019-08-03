@@ -265,6 +265,19 @@ open class ListViewController:
     return self.listAdapter.objects().count
   }
 
+  public func invalidateLayout(inSection section: Int, completion: ((Bool) -> ())? = nil) {
+    guard let controller = self.listAdapter.sectionController(forSection: section) else {
+      return
+    }
+    controller.collectionContext?.invalidateLayout(for: controller, completion: completion)
+  }
+
+  public func invalidateLayout() {
+    for section in 0 ..< numberOfSections {
+      self.invalidateLayout(inSection: section)
+    }
+  }
+
   // MARK: - Internal Methods -
 
   internal func supplementaryView(

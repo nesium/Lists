@@ -163,4 +163,10 @@ internal class CollectionViewContainerCell:
     // can get identified as a FormButton.
     return self
   }
+
+  override func preferredLayoutAttributesFitting(
+    _ layoutAttributes: UICollectionViewLayoutAttributes
+  ) -> UICollectionViewLayoutAttributes {
+    return self.cellView.preferredLayoutAttributesFitting(layoutAttributes)
+  }
 }

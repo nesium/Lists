@@ -53,4 +53,10 @@ open class ListCell: UIView {
       right: self.layoutMargins.right
     ))
   }
+
+  open func preferredLayoutAttributesFitting(
+    _ layoutAttributes: UICollectionViewLayoutAttributes
+  ) -> UICollectionViewLayoutAttributes {
+    return layoutAttributes
+  }
 }

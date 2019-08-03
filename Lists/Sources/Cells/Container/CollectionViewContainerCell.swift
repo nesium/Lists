@@ -37,6 +37,14 @@ internal class CollectionViewContainerCell:
     }
   }
 
+  private var separatorReference: SeparatorInsetReference = .fromCellEdges {
+    didSet {
+      if self.separatorReference != oldValue {
+        self.setNeedsLayout()
+      }
+    }
+  }
+
   internal var cellView: ListCell! {
     didSet {
       oldValue?.removeFromSuperview()
@@ -102,9 +110,14 @@ internal class CollectionViewContainerCell:
 
   // MARK: - Public Methods -
 
-  func applySeparatorStyle(_ style: LineStyle?, insets: UIEdgeInsets = .zero) {
+  func applySeparatorStyle(
+    _ style: LineStyle?,
+    insets: UIEdgeInsets = .zero,
+    reference: SeparatorInsetReference = .fromCellEdges
+  ) {
     self.separatorStyle = style
     self.separatorInsets = insets
+    self.separatorReference = reference
   }
 
   override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -120,17 +133,25 @@ internal class CollectionViewContainerCell:
     super.layoutSubviews()
 
     var cellViewFrame = self.contentView.bounds
+    var separatorInsets = self.separatorInsets
+
+    switch self.separatorReference {
+      case .fromCellEdges:
+        break
+      case .fromAutomaticInsets:
+        separatorInsets.left += self.layoutMargins.left
+        separatorInsets.right += self.layoutMargins.right
+    }
 
     if let style = self.separatorStyle {
       self.separator.isHidden = false
       self.separator.backgroundColor = style.color
       self.separator.frame = CGRect(
-        x: self.separatorInsets.left,
+        x: separatorInsets.left,
         y: self.contentView.bounds.height - style.thickness,
-        width: self.contentView.bounds.width -
-          self.separatorInsets.left -
-          self.separatorInsets.right,
-        height: style.thickness)
+        width: self.contentView.bounds.width - separatorInsets.left - separatorInsets.right,
+        height: style.thickness
+      )
 
       cellViewFrame.size.height -= style.thickness
     } else {

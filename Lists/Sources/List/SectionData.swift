@@ -10,6 +10,11 @@ import Foundation
 import IGListKit
 import NSMUIKit
 
+public enum SeparatorInsetReference {
+  case fromCellEdges
+  case fromAutomaticInsets
+}
+
 public struct SectionData<ItemValue> {
   public typealias CellMeasure = (
     _ value: ItemValue,
@@ -27,7 +32,7 @@ public struct SectionData<ItemValue> {
     _ value: ItemValue,
     _ index: Int,
     _ numberOfItems: Int
-  ) -> (style: LineStyle, inset: UIEdgeInsets)?
+  ) -> (style: LineStyle, inset: UIEdgeInsets, reference: SeparatorInsetReference)?
 
   public let items: [ItemValue]
   public let headerData: SectionHeaderFooterData?
@@ -99,11 +104,13 @@ public struct SectionData<ItemValue> {
       SectionData.defaultCellSeparatorHandler(
         style: listViewStyle.separator,
         inset: cellStyle.separatorInset,
+        reference: .fromCellEdges,
         visibilityHandler: handler
       )
     } ?? SectionData.defaultCellSeparatorHandler(
       style: listViewStyle.separator,
-      inset: cellStyle.separatorInset
+      inset: cellStyle.separatorInset,
+      reference: .fromCellEdges
     )
 
     self.init(
@@ -184,7 +191,11 @@ public struct SectionData<ItemValue> {
     self.cellProvider.reset()
 
     if let separator = self.cellSeparator(value, index, self.items.count) {
-      cell.applySeparatorStyle(separator.style, insets: separator.inset)
+      cell.applySeparatorStyle(
+        separator.style,
+        insets: separator.inset,
+        reference: separator.reference
+      )
     } else {
       cell.applySeparatorStyle(nil)
     }
@@ -210,7 +221,11 @@ public struct SectionData<ItemValue> {
 
     if let cell = self.cellProvider.cell {
       if let separator = self.cellSeparator(value, index, self.items.count) {
-        cell.applySeparatorStyle(separator.style, insets: separator.inset)
+        cell.applySeparatorStyle(
+          separator.style,
+          insets: separator.inset,
+          reference: separator.reference
+        )
       } else {
         cell.applySeparatorStyle(nil)
       }
@@ -234,7 +249,11 @@ public struct SectionData<ItemValue> {
 
       let value = self.items[indexPath.item]
       if let separator = self.cellSeparator(value, indexPath.item, self.items.count) {
-        cell.applySeparatorStyle(separator.style, insets: separator.inset)
+        cell.applySeparatorStyle(
+          separator.style,
+          insets: separator.inset,
+          reference: separator.reference
+        )
       } else {
         cell.applySeparatorStyle(nil)
       }
@@ -249,9 +268,14 @@ extension SectionData: SectionDataType {}
 extension SectionData {
   public static func defaultCellSeparatorHandler(
     style: LineStyle?,
-    inset: UIEdgeInsets
+    inset: UIEdgeInsets,
+    reference: SeparatorInsetReference
   ) -> CellSeparator {
-    return self.defaultCellSeparatorHandler(style: style, inset: inset) { idx, numberOfItems in
+    return self.defaultCellSeparatorHandler(
+      style: style,
+      inset: inset,
+      reference: reference
+    ) { idx, numberOfItems in
       return idx < numberOfItems - 1
     }
   }
@@ -259,6 +283,7 @@ extension SectionData {
   fileprivate static func defaultCellSeparatorHandler(
     style: LineStyle?,
     inset: UIEdgeInsets,
+    reference: SeparatorInsetReference,
     visibilityHandler: @escaping FlowLayoutStyle.SeparatorVisibilityHandler
   ) -> CellSeparator {
     guard let style = style else {
@@ -267,7 +292,7 @@ extension SectionData {
 
     return { _, index, numberOfItems in
       if visibilityHandler(index, numberOfItems) {
-        return (style, inset)
+        return (style, inset, reference)
       }
       return nil
     }

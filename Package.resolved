@@ -23,9 +23,9 @@
         "package": "IGListKit",
         "repositoryURL": "https://github.com/nesium/IGListKit.git",
         "state": {
-          "branch": "master",
+          "branch": null,
           "revision": "196a354105be77f41e804544f8ca49410b05a460",
-          "version": null
+          "version": "3.4.1"
         }
       },
       {
@@ -68,9 +68,9 @@
         "package": "SwipeCellKit",
         "repositoryURL": "https://github.com/nesium/SwipeCellKit.git",
         "state": {
-          "branch": "swiftpm",
+          "branch": null,
           "revision": "62755efe4f97b381c88679ba546f452e88cf9c6b",
-          "version": null
+          "version": "1.9.2"
         }
       }
     ]

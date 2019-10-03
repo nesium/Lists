@@ -636,8 +636,14 @@ open class ListViewController:
     }
 
     guard let rect = rect else {
-      self.collectionView.contentInset = .zero
-      self.collectionView.scrollIndicatorInsets = .zero
+      // Setting the contentInset triggers a relayout regardless if it did change or not.
+      // So we'll do the work.
+      if self.collectionView.contentInset != .zero {
+        self.collectionView.contentInset = .zero
+      }
+      if self.collectionView.scrollIndicatorInsets != .zero {
+        self.collectionView.scrollIndicatorInsets = .zero
+      }
       return
     }
 

@@ -6,7 +6,7 @@
 //  Copyright © 2017 nesiumdotcom. All rights reserved.
 //
 
-import Foundation
+import UIKit
 
 public protocol HeaderFooterViewStyle {
   var rowHeight: CGFloat { get }
